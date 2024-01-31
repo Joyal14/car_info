@@ -14,6 +14,14 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  void showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+      ),
+    );
+  }
+
   @override
   // ignore: override_on_non_overriding_member
   final TextEditingController mobileController = TextEditingController();
@@ -31,6 +39,7 @@ class _LoginPageState extends State<LoginPage> {
           data: {"phone": mobileController.text, "signCode": ""});
       if (response.statusCode == 200) {
         Otp otpResponse = Otp.fromJson(response.data);
+        showMessage('OTP sent successfully');
         print(otpResponse.toJson());
         // ignore: use_build_context_synchronously
         Navigator.of(context).pushReplacement(
