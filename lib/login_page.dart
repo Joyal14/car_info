@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ork_app/custom_textfield.dart';
-import 'package:ork_app/otp_model.dart';
+import 'package:ork_app/models/otp_model.dart';
 import 'package:ork_app/otp_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -44,8 +44,8 @@ class _LoginPageState extends State<LoginPage> {
         // ignore: use_build_context_synchronously
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (context) => OTPPage(),
-          ),
+              builder: (context) =>
+                  OtpPage(phoneNumber: mobileController.text)),
         );
         // print(response);
       }

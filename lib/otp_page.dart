@@ -1,205 +1,262 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:ork_app/custom_textfield.dart';
-import 'package:ork_app/details_page.dart';
+import 'package:ork_app/home_page.dart';
+import 'package:ork_app/login_manager.dart';
+import 'package:ork_app/main.dart';
+import 'package:ork_app/models/successfull_otp_send_model.dart';
+import 'dart:convert';
 
-class OTPPage extends StatefulWidget {
-  // ignore: prefer_const_constructors_in_immutables
-  OTPPage({super.key});
+import 'package:shared_preferences/shared_preferences.dart';
+
+class OtpPage extends StatefulWidget {
+  final String phoneNumber;
+
+  OtpPage({required this.phoneNumber});
 
   @override
-  State<OTPPage> createState() => _OTPPageState();
+  State<OtpPage> createState() => _OtpPageState();
 }
 
-class _OTPPageState extends State<OTPPage> {
-  final TextEditingController otpController1 = TextEditingController();
-  final TextEditingController otpController2 = TextEditingController();
-  final TextEditingController otpController3 = TextEditingController();
-  final TextEditingController otpController4 = TextEditingController();
-  final TextEditingController otpController5 = TextEditingController();
+class TokenManager {
+  static const String keyAccessToken = 'access_token';
 
-  // final dio = Dio();
-  // // ignore: prefer_typing_uninitialized_variables
-  // var jsonList;
+  static Future<void> saveAccessToken(String accessToken) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString(keyAccessToken, "Bearer $accessToken");
+  }
 
-  // void postData() async {
-  //   if (otpController.text.isNotEmpty) {
-  //     var response = await Dio().post(
-  //         "https://dev-api.orkindia.com/api/v1/users/sendotp",
-  //         data: {"phone": otpController.text, "signCode": ""});
-  //     if (response.statusCode == 200) {
-  //       String otpToJson(Otp data);
-  //       print(otpResponse.toJson());
-  //       // ignore: use_build_context_synchronously
-  //       Navigator.of(context).pushReplacement(
-  //         MaterialPageRoute(
-  //           builder: (context) => OTPPage(),
-  //         ),
-  //       );
-  //       // print(response);
-  //     }
-  //     // print(response);
-  //     // final parsedJson = convert.jsonDecode(data);
-  //   }
-  // }
+  static Future<String?> getAccessToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(keyAccessToken);
+  }
+
+  static Future<void> removeAccessToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove(keyAccessToken);
+  }
+
+  static const String keyPhoneNumber = 'phone_number';
+
+  static Future<void> savePhoneNumber(String phoneNumber) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString(keyPhoneNumber, phoneNumber);
+  }
+
+  static Future<String?> getPhoneNumber() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(keyPhoneNumber);
+  }
+}
+
+class _OtpPageState extends State<OtpPage> {
+  final List<TextEditingController> otpControllers =
+      List.generate(5, (index) => TextEditingController());
+  late List<FocusNode> focusNodes;
+
+  @override
+  void initState() {
+    super.initState();
+    focusNodes = List.generate(5, (index) => FocusNode());
+  }
+
+  @override
+  void dispose() {
+    for (var node in focusNodes) {
+      node.dispose();
+    }
+    super.dispose();
+  }
+
+  Future<void> submitOtp(String otp) async {
+    const String apiUrl = 'https://dev-api.orkindia.com/api/v1/users/login';
+
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String phoneNumber = widget.phoneNumber;
+
+      final dio = Dio();
+
+      // Retrieve the access token from SharedPreferences
+      String? accessToken = await TokenManager.getAccessToken();
+
+      // Check if the access token is available
+      if (accessToken != null && accessToken.isNotEmpty) {
+        // Include the access token in the headers
+        dio.options.headers['Authorization'] = 'Bearer $accessToken';
+      }
+
+      final response = await dio.post(
+        apiUrl,
+        data: {'phone': phoneNumber, 'otp': otp},
+      );
+
+      if (response.statusCode == 200) {
+        SuccessFullOtpSend otpResponse =
+            SuccessFullOtpSend.fromJson(json.decode(response.toString()));
+
+        if (otpResponse.status?.code == 1) {
+          print(phoneNumber);
+          print("invalid(1)");
+        } else if (otpResponse.status?.code == 0) {
+          String newAccessToken = otpResponse.data?.accessToken ?? '';
+          await TokenManager.saveAccessToken(newAccessToken);
+
+          // Set the code '1' in SharedPreferences to indicate successful login
+          await prefs.setInt('loginCode', 1);
+
+          print('New Access Token: $newAccessToken');
+          print("success");
+
+          // Check if the user is already logged in (e.g., using a flag in SharedPreferences)
+          bool isLoggedIn = await LoginManager.isLoggedIn();
+
+          // If the user is not already logged in, navigate to the home page
+          if (!isLoggedIn) {
+            // Use the Navigator to push the home page onto the navigation stack
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const HomePage()),
+            );
+          }
+        }
+      } else {
+        print("Error: ${response.statusCode}");
+        print("Response: ${response.data}");
+        // Handle the error appropriately
+      }
+    } catch (e) {
+      print('Exception during API call: $e');
+      // Handle the exception appropriately
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    double screenHeight = MediaQuery.of(context).size.height;
+    double screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Container(
-        padding: const EdgeInsets.all(0.1),
-        width: double.infinity,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              const SizedBox(
-                height: 180,
-              ),
-              Image.asset('image/ork.png'),
-              const SizedBox(
-                height: 50,
-              ),
-              Image.asset(
-                'image/bottom.png',
-                width: double.infinity,
-                fit: BoxFit.fill,
-              ),
-              Container(
-                width: double.infinity,
-                height: 318,
-                decoration: const BoxDecoration(
-                    color: Color.fromRGBO(0, 0, 0, 0.2),
-                    borderRadius: BorderRadius.horizontal(
-                        left: Radius.circular(10), right: Radius.circular(10))),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Row(
-                          children: [
-                            Text(
-                              "Enter OTP",
-                              style: TextStyle(
-                                  color: Color.fromRGBO(50, 187, 255, 1),
-                                  fontWeight: FontWeight.normal,
-                                  fontSize: 22),
-                            ),
-                            SizedBox(
-                              width: 120,
-                            ),
-                            Text(
-                              "Enter OTP here",
-                              style: TextStyle(
-                                  color: Color.fromRGBO(148, 148, 223, 1),
-                                  fontWeight: FontWeight.normal,
-                                  fontSize: 22),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        Row(
-                          children: [
-                            Expanded(
-                                child: custom_textfield(
-                              controller: otpController1,
-                              textInputType: TextInputType.number,
-                              inputType: TextInputType.phone,
-                              formate: LengthLimitingTextInputFormatter(1),
-                              textAlign: TextAlign.center,
-                            )),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Expanded(
-                                child: custom_textfield(
-                              controller: otpController2,
-                              textInputType: TextInputType.number,
-                              inputType: TextInputType.phone,
-                              formate: LengthLimitingTextInputFormatter(1),
-                              textAlign: TextAlign.center,
-                            )),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Expanded(
-                                child: custom_textfield(
-                              controller: otpController3,
-                              textInputType: TextInputType.number,
-                              inputType: TextInputType.phone,
-                              formate: LengthLimitingTextInputFormatter(1),
-                              textAlign: TextAlign.center,
-                            )),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Expanded(
-                                child: custom_textfield(
-                              controller: otpController4,
-                              textInputType: TextInputType.number,
-                              inputType: TextInputType.phone,
-                              formate: LengthLimitingTextInputFormatter(1),
-                              textAlign: TextAlign.center,
-                            )),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Expanded(
-                                child: Center(
-                              child: custom_textfield(
-                                controller: otpController5,
-                                textInputType: TextInputType.number,
-                                inputType: TextInputType.phone,
-                                formate: LengthLimitingTextInputFormatter(1),
-                                textAlign: TextAlign.center,
-                              ),
-                            ))
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        Center(
-                          child: SizedBox(
-                            width: double.infinity,
-                            height: 50,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(
-                                      builder: (context) => DetailsPage()),
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                foregroundColor: Colors.white,
-                                backgroundColor: Colors.blue,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                              ),
-                              child: const Text("Submit"),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        const Center(
-                          child: Text(
-                            "Resend OTP",
-                            style: TextStyle(color: Colors.blue, fontSize: 20),
-                          ),
-                        ),
-                      ]),
-                ),
-              ),
-            ],
+      body: Column(
+        children: [
+          Container(
+            padding: EdgeInsets.only(
+                top: screenHeight * 0.2, bottom: screenHeight * 0.02),
+            child: Image.asset('image/ork.png',
+                width: screenWidth * 0.5, height: screenHeight * 0.15),
           ),
-        ),
+          Expanded(
+            child: SizedBox(
+              height: screenHeight * 0.7,
+              width: double.infinity,
+              child: Stack(
+                alignment: Alignment.bottomCenter,
+                children: [
+                  Positioned.fill(
+                    child: Image.asset('image/bottom.png', fit: BoxFit.fill),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Container(
+            height: screenHeight * 0.39,
+            padding: const EdgeInsets.all(20),
+            decoration: const BoxDecoration(
+              color: Color.fromARGB(255, 43, 43, 43),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Enter OTP',
+                        style: TextStyle(fontSize: 18, color: Colors.blue)),
+                    Text('Please enter the OTP',
+                        style: TextStyle(fontSize: 17, color: Colors.grey)),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: List.generate(
+                    5,
+                    (index) => SizedBox(
+                      width: 50,
+                      child: TextFormField(
+                        controller: otpControllers[index],
+                        focusNode: focusNodes[index],
+                        textAlign: TextAlign.center,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                        ],
+                        style:
+                            const TextStyle(fontSize: 18, color: Colors.white),
+                        decoration: InputDecoration(
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(color: Colors.white),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(color: Colors.white),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          filled: true,
+                          fillColor: const Color.fromARGB(255, 43, 43, 43),
+                        ),
+                        onChanged: (value) {
+                          if (value.length == 1 && index < 4) {
+                            FocusScope.of(context)
+                                .requestFocus(focusNodes[index + 1]);
+                          } else if (value.isEmpty && index > 0) {
+                            FocusScope.of(context)
+                                .requestFocus(focusNodes[index - 1]);
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () async {
+                    String otp = otpControllers
+                        .map((controller) => controller.text)
+                        .join();
+                    if (otp.length == 5) {
+                      await submitOtp(otp);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Please enter a valid OTP'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    backgroundColor: Colors.blue,
+                    minimumSize: const Size(double.infinity, 60),
+                  ),
+                  child: const Text('Submit',
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: Color.fromARGB(255, 208, 208, 208))),
+                ),
+                const SizedBox(height: 20),
+                const Center(
+                  child: Text('Resend OTP',
+                      style: TextStyle(fontSize: 18, color: Colors.blue)),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
