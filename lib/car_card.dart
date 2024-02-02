@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ork_app/models/vechile_model.dart'; // Import your model file
 
 class CarCard extends StatefulWidget {
-  final Doc data;
+  final VechileListModel data;
   // Assuming 'Doc' is the class representing your car data
 
   const CarCard({super.key, required this.data});

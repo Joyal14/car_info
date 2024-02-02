@@ -30,7 +30,7 @@ class VechileList {
 }
 
 class Data {
-  List<Doc>? docs;
+  List<VechileListModel>? docs;
   int? totalDocs;
   int? limit;
   int? page;
@@ -57,7 +57,8 @@ class Data {
   factory Data.fromJson(Map<String, dynamic> json) => Data(
         docs: json["docs"] == null
             ? []
-            : List<Doc>.from(json["docs"]!.map((x) => Doc.fromJson(x))),
+            : List<VechileListModel>.from(
+                json["docs"]!.map((x) => VechileListModel.fromJson(x))),
         totalDocs: json["totalDocs"],
         limit: json["limit"],
         page: json["page"],
@@ -85,7 +86,7 @@ class Data {
       };
 }
 
-class Doc {
+class VechileListModel {
   String? id;
   String? showroomId;
   String? carBrand;
@@ -128,7 +129,7 @@ class Doc {
   List<dynamic>? favData;
   bool? isLiked;
 
-  Doc({
+  VechileListModel({
     this.id,
     this.showroomId,
     this.carBrand,
@@ -172,7 +173,8 @@ class Doc {
     this.isLiked,
   });
 
-  factory Doc.fromJson(Map<String, dynamic> json) => Doc(
+  factory VechileListModel.fromJson(Map<String, dynamic> json) =>
+      VechileListModel(
         id: json["_id"],
         showroomId: json["showroomId"],
         carBrand: json["carBrand"],

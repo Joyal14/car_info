@@ -30,7 +30,7 @@ class ShowRoomList {
 }
 
 class Data {
-  List<Doc>? docs;
+  List<ShowRoomModel>? docs;
   int? totalDocs;
   int? limit;
   int? page;
@@ -57,7 +57,8 @@ class Data {
   factory Data.fromJson(Map<String, dynamic> json) => Data(
         docs: json["docs"] == null
             ? []
-            : List<Doc>.from(json["docs"]!.map((x) => Doc.fromJson(x))),
+            : List<ShowRoomModel>.from(
+                json["docs"]!.map((x) => ShowRoomModel.fromJson(x))),
         totalDocs: json["totalDocs"],
         limit: json["limit"],
         page: json["page"],
@@ -85,7 +86,7 @@ class Data {
       };
 }
 
-class Doc {
+class ShowRoomModel {
   String? id;
   String? buyerId;
   String? showroomName;
@@ -101,7 +102,7 @@ class Doc {
   String? sellerType;
   int? carcount;
 
-  Doc({
+  ShowRoomModel({
     this.id,
     this.buyerId,
     this.showroomName,
@@ -118,7 +119,7 @@ class Doc {
     this.carcount,
   });
 
-  factory Doc.fromJson(Map<String, dynamic> json) => Doc(
+  factory ShowRoomModel.fromJson(Map<String, dynamic> json) => ShowRoomModel(
         id: json["_id"],
         buyerId: json["buyerId"],
         showroomName: json["showroomName"],

@@ -1,22 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:ork_app/models/vechile_model.dart'; // Import your model file
+import 'package:ork_app/models/showroom_model.dart'; // Import your model file
 
 class ShowRoomCard extends StatefulWidget {
-  final Doc data;
+  final ShowRoomModel data;
   // Assuming 'Doc' is the class representing your car data
 
   const ShowRoomCard({super.key, required this.data});
 
   @override
-  State<ShowRoomCard> createState() => _CarCardState();
+  State<ShowRoomCard> createState() => _ShowRoomState();
 }
 
-class _CarCardState extends State<ShowRoomCard> {
+class _ShowRoomState extends State<ShowRoomCard> {
+  final String baseImageUrl =
+      "https://d2k9wdr6bx93k6.cloudfront.net/development";
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 200,
+      height: 150,
       margin: const EdgeInsets.only(right: 10),
       decoration: const BoxDecoration(
         borderRadius: BorderRadius.all(
@@ -24,48 +26,38 @@ class _CarCardState extends State<ShowRoomCard> {
         ),
         color: Color.fromARGB(98, 107, 106, 106),
       ),
-      child: Column(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            height: 120,
-            decoration: const BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(20)),
-              // image: DecorationImage(
-              //   image: NetworkImage(
+          SizedBox(
+              height: 180,
+              width: 100,
+              child: Image.network(
+                '$baseImageUrl${widget.data.showroomImages?[0].url}',
+                width: 100,
+                height: 100,
+              )),
+          const SizedBox(
+            width: 20,
+          ),
+          Column(
+            children: [
+              Text(
+                'Showroom Name: ${widget.data.showroomName ?? ""}',
+                style: TextStyle(color: Colors.white),
+              ),
+              Text(
+                'Owner Name: ${widget.data.ownerName ?? ""}',
+                style: TextStyle(color: Colors.white),
+              ),
+              Text(
+                'Location: ${widget.data.location ?? ""}',
+                style: TextStyle(color: Colors.white),
+              ),
+            ],
+          ),
 
-              //     , // Replace with your image asset
-              //   ),
-              //   fit: BoxFit.fill,
-              // ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${widget.data.brandData?.brandName ?? 'Brand Name'} ${widget.data.modelData?.modelName ?? ''}', // Use the actual property from your data
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${widget.data.yearData?.year ?? ''} | ${widget.data.mileage ?? ''} | ${widget.data.location ?? ''}',
-                  style: const TextStyle(fontSize: 12, color: Colors.white),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '₹ ${widget.data.price ?? 'Price'}',
-                  style: const TextStyle(fontSize: 14, color: Colors.blue),
-                ),
-              ],
-            ),
-          ),
+          // Add more Text widgets with other fields as needed
         ],
       ),
     );

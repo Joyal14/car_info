@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:ork_app/models/showroom_model.dart';
 import 'package:ork_app/models/vechile_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -11,13 +12,11 @@ class ApiHelper {
     return dio;
   }
 
-  static Future<List<Doc>> fetchCarProfiles() async {
+  static Future<List<VechileListModel>> fetchCarProfiles() async {
     Dio dio = createDio();
 
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String accessToken = prefs.getString("access_token") ?? "";
-      print(accessToken);
+      String accessToken = await _getAccessToken();
       dio.options.headers['Authorization'] = accessToken;
 
       Response response = await dio.get(
@@ -31,69 +30,57 @@ class ApiHelper {
         },
       );
 
-      dynamic responseData = response.data;
-
-      if (responseData is Map<String, dynamic> &&
-          responseData.containsKey('data') &&
-          responseData['data'] is Map<String, dynamic> &&
-          responseData['data'].containsKey('docs') &&
-          responseData['data']['docs'] is List) {
-        List<Doc> carProfiles = (responseData['data']['docs'] as List)
-            .map((json) => Doc.fromJson(json))
-            .toList();
-        return carProfiles;
-      } else {
-        print('Invalid response format: $responseData');
-        // Handle the error or return an empty list as needed
-        return [];
-      }
+      return _parseCarResponse(response.data);
     } catch (e) {
       print('Error: $e');
-      // Rethrow the error to be handled in the UI
       throw e;
+    } finally {
+      dio.close();
     }
   }
 
-  static Future<List<Doc>> fetchShowRoom() async {
+  static Future<List<ShowRoomModel>> fetchShowRoom() async {
     Dio dio = createDio();
 
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String accessToken = prefs.getString("access_token") ?? "";
-      print(accessToken);
+      String accessToken = await _getAccessToken();
       dio.options.headers['Authorization'] = accessToken;
 
       Response response = await dio.get(
-        '$baseUrl/getshowroomloc',
+        'https://dev-api.orkindia.com/api/v1/users/getshowroomloc',
         queryParameters: {
           'latitude': "13.3450369",
           'longitude': "74.7512283",
-          'sort': "1",
           'page': '1',
           'search': '',
         },
       );
 
-      dynamic responseData = response.data;
-
-      if (responseData is Map<String, dynamic> &&
-          responseData.containsKey('data') &&
-          responseData['data'] is Map<String, dynamic> &&
-          responseData['data'].containsKey('docs') &&
-          responseData['data']['docs'] is List) {
-        List<Doc> showRoomProfiles = (responseData['data']['docs'] as List)
-            .map((json) => Doc.fromJson(json))
-            .toList();
-        return showRoomProfiles;
-      } else {
-        print('Invalid response format: $responseData');
-        // Handle the error or return an empty list as needed
-        return [];
-      }
+      return _parseShowRoomResponse(response.data);
     } catch (e) {
       print('Error: $e');
-      // Rethrow the error to be handled in the UI
       throw e;
+    } finally {
+      dio.close();
     }
+  }
+
+  static Future<String> _getAccessToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString("access_token") ?? "";
+  }
+
+  static List<VechileListModel> _parseCarResponse(dynamic responseData) {
+    return (responseData?['data']?['docs'] as List?)
+            ?.map((json) => VechileListModel.fromJson(json))
+            .toList() ??
+        [];
+  }
+
+  static List<ShowRoomModel> _parseShowRoomResponse(dynamic responseData) {
+    return (responseData?['data']?['docs'] as List?)
+            ?.map((json) => ShowRoomModel.fromJson(json))
+            .toList() ??
+        [];
   }
 }

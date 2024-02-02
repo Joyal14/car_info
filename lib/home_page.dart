@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ork_app/api_file.dart';
 import 'package:ork_app/car_card.dart'; // Import your CarCard widget
+import 'package:ork_app/models/showroom_model.dart';
 import 'package:ork_app/models/vechile_model.dart';
 import 'package:ork_app/showroom_card.dart';
 
@@ -12,8 +13,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late List<Doc> carProfiles = [];
-  late List<Doc> showRoom = [];
+  late List<VechileListModel> carProfiles = [];
+  late List<ShowRoomModel> showRoom = [];
 
   @override
   void initState() {
@@ -24,7 +25,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _fetchCarProfiles() async {
     try {
-      List<Doc> profiles = await ApiHelper.fetchCarProfiles();
+      List<VechileListModel> profiles = await ApiHelper.fetchCarProfiles();
       setState(() {
         carProfiles = profiles;
       });
@@ -34,14 +35,28 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  // Future<void> _fetchShowRoom() async {
+  //   try {
+  //     List<ShowRoomModel> profiles = await ApiHelper.fetchShowRoom();
+  //     setState(() {
+  //       showRoom = profiles;
+  //       print(showRoom);
+  //     });
+  //   } catch (e) {
+  //     print('Error fetching car profiles: $e');
+  //     // Handle the error if needed
+  //   }
+  // }
   Future<void> _fetchShowRoom() async {
     try {
-      List<Doc> profiles = await ApiHelper.fetchShowRoom();
+      List<ShowRoomModel> profiles = await ApiHelper.fetchShowRoom();
+      print('Fetched Showroom Data: $profiles'); // Add this line
       setState(() {
         showRoom = profiles;
+        print(showRoom);
       });
     } catch (e) {
-      print('Error fetching car profiles: $e');
+      print('Error fetching showroom profiles: $e');
       // Handle the error if needed
     }
   }
@@ -225,7 +240,10 @@ class _HomePageState extends State<HomePage> {
                 width: double.infinity,
                 child: showRoom.isEmpty
                     ? const Center(
-                        child: Text('No ShowRoom profiles available.'),
+                        child: Text(
+                          'No ShowRoom profiles available.',
+                          style: TextStyle(color: Colors.white),
+                        ),
                       )
                     : ListView.builder(
                         scrollDirection: Axis.vertical,
