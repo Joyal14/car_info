@@ -1,41 +1,8 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:ork_app/car_card.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-class ApiHelper {
-  static const String baseUrl = 'https://api.orkindia.com/api/v1/users';
-
-  static Dio createDio() {
-    Dio dio = Dio();
-    dio.interceptors.add(LogInterceptor(requestBody: true, responseBody: true));
-    return dio;
-  }
-
-  static Future<void> fetchCarProfiles() async {
-    Dio dio = createDio();
-
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String accessToken = prefs.getString("access_token") ?? "";
-      dio.options.headers['Authorization'] = accessToken;
-
-      Response response = await dio.get(
-        '$baseUrl/getCarProfiles',
-        queryParameters: {
-          'latitude': "13.3450369",
-          'longitude': "74.7512283",
-          'sort': "1",
-          'page': '1',
-          'search': '',
-        },
-      );
-      print(response);
-    } catch (e) {
-      print('Error: $e');
-    }
-  }
-}
+import 'package:ork_app/api_file.dart';
+import 'package:ork_app/car_card.dart'; // Import your CarCard widget
+import 'package:ork_app/models/vechile_model.dart';
+import 'package:ork_app/showroom_card.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -45,10 +12,38 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  late List<Doc> carProfiles = [];
+  late List<Doc> showRoom = [];
+
   @override
   void initState() {
     super.initState();
-    ApiHelper.fetchCarProfiles();
+    _fetchCarProfiles();
+    _fetchShowRoom();
+  }
+
+  Future<void> _fetchCarProfiles() async {
+    try {
+      List<Doc> profiles = await ApiHelper.fetchCarProfiles();
+      setState(() {
+        carProfiles = profiles;
+      });
+    } catch (e) {
+      print('Error fetching car profiles: $e');
+      // Handle the error if needed
+    }
+  }
+
+  Future<void> _fetchShowRoom() async {
+    try {
+      List<Doc> profiles = await ApiHelper.fetchShowRoom();
+      setState(() {
+        showRoom = profiles;
+      });
+    } catch (e) {
+      print('Error fetching car profiles: $e');
+      // Handle the error if needed
+    }
   }
 
   @override
@@ -191,14 +186,89 @@ class _HomePageState extends State<HomePage> {
               SizedBox(
                 height: 210,
                 width: double.infinity,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: 5, // Replace with your actual item count
-                  itemBuilder: (context, index) {
-                    return buildCarCard(); // You can pass your data here
-                  },
-                ),
+                child: carProfiles.isEmpty
+                    ? const Center(
+                        child: Text('No car profiles available.'),
+                      )
+                    : ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: carProfiles.length,
+                        itemBuilder: (context, index) {
+                          return CarCard(data: carProfiles[index]);
+                        },
+                      ),
               ),
+              const SizedBox(
+                height: 10,
+              ),
+              const Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Top Showrooms",
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  ),
+                  SizedBox(
+                    width: 180,
+                  ),
+                  Text(
+                    "View All",
+                    style: TextStyle(color: Colors.blue, fontSize: 20),
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              SizedBox(
+                height: 260,
+                width: double.infinity,
+                child: showRoom.isEmpty
+                    ? const Center(
+                        child: Text('No ShowRoom profiles available.'),
+                      )
+                    : ListView.builder(
+                        scrollDirection: Axis.vertical,
+                        itemCount: showRoom.length,
+                        itemBuilder: (context, index) {
+                          return ShowRoomCard(data: showRoom[index]);
+                        },
+                      ),
+              ),
+              BottomNavigationBar(
+                type: BottomNavigationBarType.fixed,
+                backgroundColor: const Color.fromARGB(98, 107, 106, 106),
+                items: const [
+                  BottomNavigationBarItem(
+                    icon: Icon(
+                      Icons.home,
+                      color: Colors.white,
+                    ),
+                    label: 'Home',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(
+                      Icons.sell,
+                      color: Colors.white,
+                    ),
+                    label: 'Sell Car',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(
+                      Icons.notifications,
+                      color: Colors.white,
+                    ),
+                    label: 'Notification',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(
+                      Icons.person,
+                      color: Colors.white,
+                    ),
+                    label: 'Profile',
+                  ),
+                ],
+              )
             ],
           ),
         ),

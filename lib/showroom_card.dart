@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:ork_app/models/vechile_model.dart'; // Import your model file
 
-class CarCard extends StatefulWidget {
+class ShowRoomCard extends StatefulWidget {
   final Doc data;
   // Assuming 'Doc' is the class representing your car data
 
-  const CarCard({super.key, required this.data});
+  const ShowRoomCard({super.key, required this.data});
 
   @override
-  State<CarCard> createState() => _CarCardState();
+  State<ShowRoomCard> createState() => _CarCardState();
 }
 
-class _CarCardState extends State<CarCard> {
+class _CarCardState extends State<ShowRoomCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 200,
+      width: double.infinity,
+      height: 200,
       margin: const EdgeInsets.only(right: 10),
       decoration: const BoxDecoration(
         borderRadius: BorderRadius.all(
@@ -32,6 +33,7 @@ class _CarCardState extends State<CarCard> {
               borderRadius: BorderRadius.all(Radius.circular(20)),
               // image: DecorationImage(
               //   image: NetworkImage(
+
               //     , // Replace with your image asset
               //   ),
               //   fit: BoxFit.fill,
