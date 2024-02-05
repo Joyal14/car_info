@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:ork_app/api_file.dart';
+import 'package:ork_app/Api/api_file.dart';
 import 'package:ork_app/car_card.dart'; // Import your CarCard widget
+import 'package:ork_app/car_details_page.dart';
+import 'package:ork_app/car_all_list.dart';
 import 'package:ork_app/models/showroom_model.dart';
 import 'package:ork_app/models/vechile_model.dart';
 import 'package:ork_app/showroom_card.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -31,38 +33,25 @@ class _HomePageState extends State<HomePage> {
       });
     } catch (e) {
       print('Error fetching car profiles: $e');
-      // Handle the error if needed
     }
   }
 
-  // Future<void> _fetchShowRoom() async {
-  //   try {
-  //     List<ShowRoomModel> profiles = await ApiHelper.fetchShowRoom();
-  //     setState(() {
-  //       showRoom = profiles;
-  //       print(showRoom);
-  //     });
-  //   } catch (e) {
-  //     print('Error fetching car profiles: $e');
-  //     // Handle the error if needed
-  //   }
-  // }
   Future<void> _fetchShowRoom() async {
     try {
       List<ShowRoomModel> profiles = await ApiHelper.fetchShowRoom();
-      print('Fetched Showroom Data: $profiles'); // Add this line
       setState(() {
         showRoom = profiles;
-        print(showRoom);
       });
     } catch (e) {
       print('Error fetching showroom profiles: $e');
-      // Handle the error if needed
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -100,16 +89,14 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       body: SafeArea(
-        child: SizedBox(
-          width: double.infinity,
-          height: double.infinity,
+        child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Stack(
                 children: [
                   Container(
-                    height: 150,
+                    height: screenHeight * 0.15,
                     width: double.infinity,
                     decoration: BoxDecoration(
                       color: Colors.black,
@@ -119,44 +106,44 @@ class _HomePageState extends State<HomePage> {
                         fit: BoxFit.cover,
                       ),
                     ),
-                    child: const Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20.0, vertical: 10),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          const Text(
                             "ORK",
                             style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 35,
+                                fontSize: 25,
                                 fontWeight: FontWeight.bold),
                           ),
-                          Divider(
+                          const Divider(
                             color: Colors.blue,
                           ),
-                          Text(
+                          const Text(
                             "PRE-OWNED VEHICLES!",
                             style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 10,
+                                fontSize: 8,
                                 fontWeight: FontWeight.bold),
                           ),
-                          Text(
+                          const Text(
                             "WHEELS FOR EVERY HOME",
                             style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 10,
+                                fontSize: 8,
                                 fontWeight: FontWeight.bold),
                           ),
                           SizedBox(
-                            height: 25,
+                            height: screenHeight * 0.033,
                           ),
                           Text(
                             "Choose your Car & Book an Appointment with Dealer",
                             style: TextStyle(
                                 color: Colors.black,
-                                fontSize: 6,
+                                fontSize: screenWidth * 0.015,
                                 fontWeight: FontWeight.bold),
                           ),
                         ],
@@ -164,13 +151,13 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   Positioned(
-                    top: 20,
-                    right: 10,
-                    bottom: 10,
+                    top: screenHeight * 0.04,
+                    right: screenWidth * 0.02,
+                    bottom: screenHeight * 0.02,
                     child: Image.asset(
                       'image/Frame.png',
-                      width: 180,
-                      height: 40, // Set your desired width
+                      width: screenWidth * 0.4,
+                      height: screenHeight * 0.04, // Set your desired width
                       fit: BoxFit.fill,
                     ),
                   ),
@@ -179,19 +166,29 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(
                 height: 10,
               ),
-              const Row(
+              Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     "Recently added Cars",
                     style: TextStyle(color: Colors.white, fontSize: 20),
                   ),
                   SizedBox(
-                    width: 140,
+                    width: screenWidth * 0.3,
                   ),
-                  Text(
-                    "View All",
-                    style: TextStyle(color: Colors.blue, fontSize: 20),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const CarAllList(),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      "View All",
+                      style: TextStyle(color: Colors.blue, fontSize: 20),
+                    ),
                   ),
                 ],
               ),
@@ -199,7 +196,7 @@ class _HomePageState extends State<HomePage> {
                 height: 10,
               ),
               SizedBox(
-                height: 210,
+                height: screenHeight * 0.25,
                 width: double.infinity,
                 child: carProfiles.isEmpty
                     ? const Center(
@@ -209,24 +206,36 @@ class _HomePageState extends State<HomePage> {
                         scrollDirection: Axis.horizontal,
                         itemCount: carProfiles.length,
                         itemBuilder: (context, index) {
-                          return CarCard(data: carProfiles[index]);
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => CarDetailsPage(
+                                    carDetails: carProfiles[index],
+                                  ),
+                                ),
+                              );
+                            },
+                            child: CarCard(data: carProfiles[index]),
+                          );
                         },
                       ),
               ),
               const SizedBox(
                 height: 10,
               ),
-              const Row(
+              Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     "Top Showrooms",
                     style: TextStyle(color: Colors.white, fontSize: 20),
                   ),
                   SizedBox(
-                    width: 180,
+                    width: screenWidth * 0.4,
                   ),
-                  Text(
+                  const Text(
                     "View All",
                     style: TextStyle(color: Colors.blue, fontSize: 20),
                   ),
@@ -236,7 +245,7 @@ class _HomePageState extends State<HomePage> {
                 height: 10,
               ),
               SizedBox(
-                height: 260,
+                height: screenHeight * 0.3,
                 width: double.infinity,
                 child: showRoom.isEmpty
                     ? const Center(
@@ -253,43 +262,43 @@ class _HomePageState extends State<HomePage> {
                         },
                       ),
               ),
-              BottomNavigationBar(
-                type: BottomNavigationBarType.fixed,
-                backgroundColor: const Color.fromARGB(98, 107, 106, 106),
-                items: const [
-                  BottomNavigationBarItem(
-                    icon: Icon(
-                      Icons.home,
-                      color: Colors.white,
-                    ),
-                    label: 'Home',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(
-                      Icons.sell,
-                      color: Colors.white,
-                    ),
-                    label: 'Sell Car',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(
-                      Icons.notifications,
-                      color: Colors.white,
-                    ),
-                    label: 'Notification',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(
-                      Icons.person,
-                      color: Colors.white,
-                    ),
-                    label: 'Profile',
-                  ),
-                ],
-              )
             ],
           ),
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: const Color.fromARGB(98, 107, 106, 106),
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.home,
+              color: Colors.white,
+            ),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.sell,
+              color: Colors.white,
+            ),
+            label: 'Sell Car',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.notifications,
+              color: Colors.white,
+            ),
+            label: 'Notification',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.person,
+              color: Colors.white,
+            ),
+            label: 'Profile',
+          ),
+        ],
       ),
     );
   }

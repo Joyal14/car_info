@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+// ignore: camel_case_types
 class custom_textfield extends StatelessWidget {
   final String? hintText;
   final TextInputType? inputType;
@@ -53,6 +54,32 @@ class custom_textfield extends StatelessWidget {
           ),
         ),
         style: const TextStyle(color: Color.fromARGB(255, 255, 255, 255)),
+      ),
+    );
+  }
+}
+
+class CustomText extends StatelessWidget {
+  final String text;
+  final double fontSize;
+  final Color color;
+  final TextAlign textAlign;
+
+  const CustomText({
+    Key? key,
+    required this.text,
+    this.fontSize = 18.0,
+    this.color = Colors.white,
+    this.textAlign = TextAlign.start,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: TextStyle(
+        fontSize: fontSize,
+        color: color, // Set the default color to white
       ),
     );
   }
