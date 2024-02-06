@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ork_app/custom_textfield.dart';
-import 'package:ork_app/home_page.dart';
+import 'package:ork_app/pages/home_page.dart';
 
-class DetailsPage extends StatelessWidget {
-  final TextEditingController detailsController = TextEditingController();
+class DetailsPage extends StatefulWidget {
   DetailsPage({super.key});
+
+  @override
+  State<DetailsPage> createState() => _DetailsPageState();
+}
+
+class _DetailsPageState extends State<DetailsPage> {
+  final TextEditingController detailsController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {

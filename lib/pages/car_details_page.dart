@@ -1,7 +1,10 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:ork_app/custom_container.dart';
 import 'package:ork_app/custom_textfield.dart';
+import 'package:ork_app/models/dealers_details_model.dart';
 import 'package:ork_app/models/vechile_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CarDetailsPage extends StatefulWidget {
   final VechileListModel carDetails;
@@ -13,6 +16,64 @@ class CarDetailsPage extends StatefulWidget {
 }
 
 class _CarDetailsPageState extends State<CarDetailsPage> {
+  TextEditingController nameController = TextEditingController();
+  TextEditingController phoneController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+
+  Future<void> sendDealerDetails() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? buyerId = prefs.getString('buyerId');
+    print(buyerId);
+
+    if (buyerId == null || buyerId.isEmpty) {
+      print('BuyerId not found in SharedPreferences');
+      return;
+    }
+
+    // Validate the phone number input
+
+    // Create a map with the required data
+    var requestData = {
+      "buyerId": buyerId,
+      "requestorName": nameController.text,
+      "requestorPhone": phoneController.text,
+      "requestorEmail": emailController.text,
+    };
+
+    var dio = Dio();
+
+    var url =
+        'https://dev-api.orkindia.com/api/v1/users/contactdealer'; // Replace with actual endpoint URL
+
+    try {
+      var response = await dio.post(
+        url,
+        data: requestData,
+        options: Options(
+          contentType: 'application/json',
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        // Request successful, handle the response
+        var jsonResponse = response.data;
+        DealerDetails dealerDetails = DealerDetails.fromJson(jsonResponse);
+        print(dealerDetails);
+        // Handle the dealerDetails object as needed
+      } else {
+        // Request failed, handle the error
+        print('Request failed with status: ${response.statusCode}');
+      }
+    } catch (e) {
+      // Handle any exceptions
+      print('Error sending dealer details: $e');
+    }
+  }
+
+  bool isNumeric(String str) {
+    return RegExp(r'^[0-9]+$').hasMatch(str);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -236,25 +297,168 @@ class _CarDetailsPageState extends State<CarDetailsPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Container(
-                      width: 150,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        color: Colors.black,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: const Color.fromARGB(224, 34, 96, 202),
+                    GestureDetector(
+                      onTap: () {},
+                      child: Container(
+                        width: 150,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: Colors.black,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: const Color.fromARGB(224, 34, 96, 202),
+                          ),
                         ),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          "View Dealer Details",
-                          style: TextStyle(color: Colors.blue),
+                        child: const Center(
+                          child: Text(
+                            "View Dealer Details",
+                            style: TextStyle(color: Colors.blue),
+                          ),
                         ),
                       ),
                     ),
                     GestureDetector(
-                      onTap: () {},
+                      onTap: () {
+                        // Show an alert dialog
+                        sendDealerDetails();
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              backgroundColor: Colors.black,
+                              title: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Image.asset('image/alertbox.png'),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  const Center(
+                                    child: Text(
+                                      'Please Provide Below Information to Contact Dealer',
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 12),
+                                    ),
+                                  ),
+                                  const Text(
+                                      "Dealer will contact you soon after submitting",
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 10)),
+                                  const Text("your information.",
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 10))
+                                ],
+                              ),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: Colors.grey,
+                                      ),
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    child: TextField(
+                                      controller: nameController,
+                                      style: TextStyle(color: Colors.white),
+                                      decoration: InputDecoration(
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                horizontal: 10, vertical: 10),
+                                        hintText: 'Name',
+                                        hintStyle: const TextStyle(
+                                            color: Colors.white),
+                                        border: InputBorder.none,
+                                        suffixIcon: IconButton(
+                                          onPressed: () {
+                                            // Add your edit logic here
+                                          },
+                                          icon: const Icon(Icons.edit),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: Colors.grey,
+                                      ),
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    child: TextField(
+                                      controller: phoneController,
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                      decoration: InputDecoration(
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                horizontal: 10, vertical: 10),
+                                        hintText: 'Phone',
+                                        hintStyle: const TextStyle(
+                                            color: Colors.white),
+                                        border: InputBorder.none,
+                                        suffixIcon: IconButton(
+                                          onPressed: () {
+                                            // Add your edit logic here
+                                          },
+                                          icon: const Icon(Icons.edit),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: Colors.grey,
+                                      ),
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    child: TextField(
+                                      controller: emailController,
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                      decoration: InputDecoration(
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                horizontal: 10, vertical: 10),
+                                        hintText: 'Email',
+                                        hintStyle: const TextStyle(
+                                            color: Colors.white),
+                                        border: InputBorder.none,
+                                        suffixIcon: IconButton(
+                                          onPressed: () {
+                                            // Add your edit logic here
+                                          },
+                                          icon: const Icon(Icons.edit),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              actions: <Widget>[
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment
+                                      .end, // Aligns the button to the bottom
+                                  children: [
+                                    ElevatedButton(
+                                        onPressed: () {},
+                                        child: Text("submit")),
+                                  ],
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
                       child: Container(
                         width: 150,
                         height: 60,

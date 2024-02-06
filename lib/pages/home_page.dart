@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:ork_app/Api/api_file.dart';
-import 'package:ork_app/car_card.dart'; // Import your CarCard widget
-import 'package:ork_app/car_details_page.dart';
+import 'package:ork_app/car_card.dart';
 import 'package:ork_app/car_all_list.dart';
 import 'package:ork_app/models/showroom_model.dart';
 import 'package:ork_app/models/vechile_model.dart';
+import 'package:ork_app/pages/car_details_page.dart';
+import 'package:ork_app/pages/location_page.dart';
 import 'package:ork_app/showroom_card.dart';
 
 class HomePage extends StatefulWidget {
@@ -60,9 +61,16 @@ class _HomePageState extends State<HomePage> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(
-              "image/Black.png",
-              fit: BoxFit.fitHeight,
+            GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const LocationPage()),
+                );
+              },
+              child: Image.asset(
+                "image/Black.png",
+                fit: BoxFit.fitHeight,
+              ),
             ),
             const SizedBox(
               width: 10,

@@ -1,18 +1,17 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:ork_app/home_page.dart';
 import 'package:ork_app/login_manager.dart';
-import 'package:ork_app/main.dart';
 import 'package:ork_app/models/successfull_otp_send_model.dart';
-import 'dart:convert';
+import 'package:ork_app/pages/home_page.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
 class OtpPage extends StatefulWidget {
   final String phoneNumber;
 
-  OtpPage({required this.phoneNumber});
+  // ignore: use_key_in_widget_constructors
+  const OtpPage({required this.phoneNumber});
 
   @override
   State<OtpPage> createState() => _OtpPageState();
@@ -93,7 +92,7 @@ class _OtpPageState extends State<OtpPage> {
 
       if (response.statusCode == 200) {
         SuccessFullOtpSend otpResponse =
-            SuccessFullOtpSend.fromJson(json.decode(response.toString()));
+            SuccessFullOtpSend.fromJson(response.data);
 
         if (otpResponse.status?.code == 1) {
           print(phoneNumber);
@@ -101,6 +100,12 @@ class _OtpPageState extends State<OtpPage> {
         } else if (otpResponse.status?.code == 0) {
           String newAccessToken = otpResponse.data?.accessToken ?? '';
           await TokenManager.saveAccessToken(newAccessToken);
+
+          // Save buyerId to SharedPreferences
+          String? buyerId = otpResponse.data?.buyer?.id;
+          if (buyerId != null && buyerId.isNotEmpty) {
+            await prefs.setString('buyerId', buyerId);
+          }
 
           // Set the code '1' in SharedPreferences to indicate successful login
           await prefs.setInt('loginCode', 1);
