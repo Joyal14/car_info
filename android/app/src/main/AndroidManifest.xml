@@ -3,6 +3,9 @@
         android:label="ork_app"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+         <meta-data
+    android:name="com.google.android.geo.API_KEY"
+    android:value="AIzaSyBJxhus7Z88n_nl0lUfjCA10MjP7LEDciw"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -29,5 +32,6 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+           
     </application>
 </manifest>

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ork_app/pages/google_map.dart';
 
 class LocationPage extends StatelessWidget {
   const LocationPage({super.key});
@@ -67,7 +68,13 @@ class LocationPage extends StatelessWidget {
                           height: 60,
                           child: ElevatedButton(
                             onPressed: () {
-                              // Your onPressed logic here
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      GoogleMapWithSearchScreen(),
+                                ),
+                              );
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.blue, // Text color
