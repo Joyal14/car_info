@@ -17,8 +17,8 @@ class _GoogleMapWithSearchScreenState extends State<GoogleMapWithSearchScreen> {
   final TextEditingController _searchController = TextEditingController();
   List<String> _suggestions = [];
   bool _listVisible = false; // Flag to track list visibility
+  bool _itemSelected = false;
   final Set<Marker> _markers = <Marker>{};
-  final Set<Polygon> _polygons = <Polygon>{};
 
   static const CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
@@ -43,7 +43,9 @@ class _GoogleMapWithSearchScreenState extends State<GoogleMapWithSearchScreen> {
         await LocationService().getSuggestions(_searchController.text);
     setState(() {
       _suggestions = newSuggestions;
-      _listVisible = true; // Show the list when new suggestions are available
+      _listVisible = !_itemSelected &&
+          _suggestions
+              .isNotEmpty; // Show the list when new suggestions are available
     });
   }
 
@@ -74,6 +76,8 @@ class _GoogleMapWithSearchScreenState extends State<GoogleMapWithSearchScreen> {
                   controller: _searchController,
                   textCapitalization: TextCapitalization.words,
                   decoration: const InputDecoration(hintText: 'Search by City'),
+                  onChanged:
+                      _onTextChanged, // Call _onTextChanged when text changes
                 ),
               ),
               IconButton(
@@ -101,6 +105,7 @@ class _GoogleMapWithSearchScreenState extends State<GoogleMapWithSearchScreen> {
                       _searchController.text =
                           _suggestions[index]; // Update the TextField text
                       setState(() {
+                        _itemSelected = true;
                         _listVisible = false; // Hide the list
                       });
                     },
@@ -109,11 +114,10 @@ class _GoogleMapWithSearchScreenState extends State<GoogleMapWithSearchScreen> {
               ),
             ),
           ),
-          Flexible(
+          Expanded(
             child: GoogleMap(
               mapType: MapType.normal,
               markers: _markers,
-              polygons: _polygons,
               initialCameraPosition: _kGooglePlex,
               onMapCreated: (GoogleMapController controller) {
                 _controller.complete(controller);
@@ -137,7 +141,14 @@ class _GoogleMapWithSearchScreenState extends State<GoogleMapWithSearchScreen> {
     _setMarker(LatLng(lat, lng));
 
     setState(() {
-      _listVisible = false; // Hide the list after a suggestion is selected
+      _listVisible = false;
+      _itemSelected = true; // Hide the list after a suggestion is selected
+    });
+  }
+
+  void _onTextChanged(String newText) {
+    setState(() {
+      _itemSelected = false; // Reset item selection flag when text changes
     });
   }
 }
