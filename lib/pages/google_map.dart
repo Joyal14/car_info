@@ -1,45 +1,59 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ork_app/models/location_services.dart';
 
 class GoogleMapWithSearchScreen extends StatefulWidget {
-  const GoogleMapWithSearchScreen({super.key});
+  const GoogleMapWithSearchScreen({Key? key}) : super(key: key);
 
   @override
-  State<GoogleMapWithSearchScreen> createState() => MapSampleState();
+  State<GoogleMapWithSearchScreen> createState() =>
+      _GoogleMapWithSearchScreenState();
 }
 
-class MapSampleState extends State<GoogleMapWithSearchScreen> {
+class _GoogleMapWithSearchScreenState extends State<GoogleMapWithSearchScreen> {
   final Completer<GoogleMapController> _controller =
       Completer<GoogleMapController>();
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
+  List<String> _suggestions = [];
+  bool _listVisible = false; // Flag to track list visibility
+  final Set<Marker> _markers = <Marker>{};
+  final Set<Polygon> _polygons = <Polygon>{};
 
   static const CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
     zoom: 14.4746,
   );
 
-  static final Marker _kGooglePlexMarker = Marker(
-    markerId: MarkerId('_kGoogleFlex'),
-    infoWindow: InfoWindow(title: 'Google plex'),
-    icon: BitmapDescriptor.defaultMarker,
-    position: LatLng(37.42796133580664, -122.085749655962),
-  );
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(_onSearchChanged);
+  }
 
-  static const CameraPosition _kLake = CameraPosition(
-      bearing: 192.8334901395799,
-      target: LatLng(37.43296265331129, -122.08832357078792),
-      tilt: 59.440717697143555,
-      zoom: 19.151926040649414);
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
-  static final Marker _kLakeMarker = Marker(
-    markerId: MarkerId('_kLakeMarker'),
-    infoWindow: InfoWindow(title: 'Lake plex'),
-    icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-    position: LatLng(37.43296265331129, -122.08832357078792),
-  );
+  void _onSearchChanged() async {
+    // Fetch suggestions based on the current search query
+    List<String> newSuggestions =
+        await LocationService().getSuggestions(_searchController.text);
+    setState(() {
+      _suggestions = newSuggestions;
+      _listVisible = true; // Show the list when new suggestions are available
+    });
+  }
+
+  void _setMarker(LatLng point) {
+    setState(() {
+      _markers.clear();
+      _markers.add(Marker(markerId: const MarkerId('marker'), position: point));
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,27 +70,50 @@ class MapSampleState extends State<GoogleMapWithSearchScreen> {
           Row(
             children: [
               Expanded(
-                  child: TextField(
-                controller: _searchController,
-                textCapitalization: TextCapitalization.words,
-                decoration: const InputDecoration(hintText: 'Search by City'),
-                onChanged: (value) {
-                  print(value);
-                },
-              )),
+                child: TextField(
+                  controller: _searchController,
+                  textCapitalization: TextCapitalization.words,
+                  decoration: const InputDecoration(hintText: 'Search by City'),
+                ),
+              ),
               IconButton(
-                  onPressed: () async {
-                    var place = await LocationService()
-                        .getPlace(_searchController.text);
-                    _goToPlace(place);
-                  },
-                  icon: const Icon(Icons.search))
+                onPressed: () async {
+                  var place =
+                      await LocationService().getPlace(_searchController.text);
+                  _goToPlace(place);
+                },
+                icon: const Icon(Icons.search),
+              )
             ],
           ),
-          Expanded(
+          Visibility(
+            visible: _listVisible,
+            child: Expanded(
+              child: ListView.builder(
+                itemCount: _suggestions.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(_suggestions[index]),
+                    onTap: () async {
+                      var place =
+                          await LocationService().getPlace(_suggestions[index]);
+                      _goToPlace(place);
+                      _searchController.text =
+                          _suggestions[index]; // Update the TextField text
+                      setState(() {
+                        _listVisible = false; // Hide the list
+                      });
+                    },
+                  );
+                },
+              ),
+            ),
+          ),
+          Flexible(
             child: GoogleMap(
               mapType: MapType.normal,
-              markers: {_kGooglePlexMarker, _kLakeMarker},
+              markers: _markers,
+              polygons: _polygons,
               initialCameraPosition: _kGooglePlex,
               onMapCreated: (GoogleMapController controller) {
                 _controller.complete(controller);
@@ -85,11 +122,6 @@ class MapSampleState extends State<GoogleMapWithSearchScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _goToTheLake,
-        label: const Text('To the lake!'),
-        icon: const Icon(Icons.directions_boat),
-      ),
     );
   }
 
@@ -97,12 +129,15 @@ class MapSampleState extends State<GoogleMapWithSearchScreen> {
     final double lat = place['geometry']['location']['lat'];
     final double lng = place['geometry']['location']['lng'];
     final GoogleMapController controller = await _controller.future;
-    await controller.animateCamera(CameraUpdate.newCameraPosition(
-        CameraPosition(target: LatLng(lat, lng), zoom: 15)));
-  }
+    await controller.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(target: LatLng(lat, lng), zoom: 15),
+      ),
+    );
+    _setMarker(LatLng(lat, lng));
 
-  Future<void> _goToTheLake() async {
-    final GoogleMapController controller = await _controller.future;
-    await controller.animateCamera(CameraUpdate.newCameraPosition(_kLake));
+    setState(() {
+      _listVisible = false; // Hide the list after a suggestion is selected
+    });
   }
 }
