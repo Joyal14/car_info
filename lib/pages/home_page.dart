@@ -81,18 +81,28 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
-        actions: const [
-          Icon(
+        actions: [
+          const Icon(
             Icons.filter,
             color: Colors.white,
           ),
-          SizedBox(
+          const SizedBox(
             width: 20,
           ),
-          Icon(
-            Icons.search_outlined,
-            color: Colors.white,
-            size: 35,
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const CarAllList(),
+                ),
+              );
+            },
+            icon: const Icon(
+              Icons.search_outlined,
+              color: Colors.white,
+              size: 35,
+            ),
           ),
         ],
       ),
