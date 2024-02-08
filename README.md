@@ -14,3 +14,13 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+
+
+This is and developer basic app of my to understand the basic use of the api and sharedpressance to store the login
+
+Login Screen 
+Enter the Mobile Number Ex:9876543211 any number.
+
+On OTP page
+The OTP will be (11111) need to use for OTP Login.
