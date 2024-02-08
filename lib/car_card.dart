@@ -59,7 +59,7 @@ class _CarCardState extends State<CarCard> {
                 const SizedBox(height: 4),
                 Text(
                   '₹ ${widget.data.price ?? 'Price'}',
-                  style: const TextStyle(fontSize: 14, color: Colors.blue),
+                  style: const TextStyle(fontSize: 12, color: Colors.blue),
                 ),
               ],
             ),

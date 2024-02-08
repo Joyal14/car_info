@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart';
 import 'package:ork_app/models/location_services.dart';
 
 class GoogleMapWithSearchScreen extends StatefulWidget {
@@ -18,7 +19,9 @@ class _GoogleMapWithSearchScreenState extends State<GoogleMapWithSearchScreen> {
   List<String> _suggestions = [];
   bool _listVisible = false; // Flag to track list visibility
   bool _itemSelected = false;
-  final Set<Marker> _markers = <Marker>{};
+  Set<Marker> _markers = {}; // Updated to be mutable
+  LatLng? _currentLocation; // Updated to be nullable
+  late StreamSubscription<LocationData> _locationSubscription;
 
   static const CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
@@ -29,11 +32,26 @@ class _GoogleMapWithSearchScreenState extends State<GoogleMapWithSearchScreen> {
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
+    _getCurrentLocation();
+
+    // Start listening for location updates
+    _locationSubscription =
+        Location().onLocationChanged.listen((LocationData locationData) {
+      setState(() {
+        _currentLocation =
+            LatLng(locationData.latitude!, locationData.longitude!);
+        if (_markers.isEmpty) {
+          _setMarker(_currentLocation!);
+          _moveToCurrentLocation();
+        }
+      });
+    });
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _locationSubscription.cancel(); // Cancel the location subscription
     super.dispose();
   }
 
@@ -51,8 +69,9 @@ class _GoogleMapWithSearchScreenState extends State<GoogleMapWithSearchScreen> {
 
   void _setMarker(LatLng point) {
     setState(() {
-      _markers.clear();
-      _markers.add(Marker(markerId: const MarkerId('marker'), position: point));
+      _markers = {
+        Marker(markerId: MarkerId('selectedMarker'), position: point)
+      };
     });
   }
 
@@ -118,7 +137,12 @@ class _GoogleMapWithSearchScreenState extends State<GoogleMapWithSearchScreen> {
             child: GoogleMap(
               mapType: MapType.normal,
               markers: _markers,
-              initialCameraPosition: _kGooglePlex,
+              initialCameraPosition: _currentLocation != null
+                  ? CameraPosition(
+                      target: _currentLocation!,
+                      zoom: 15,
+                    )
+                  : _kGooglePlex,
               onMapCreated: (GoogleMapController controller) {
                 _controller.complete(controller);
               },
@@ -132,13 +156,17 @@ class _GoogleMapWithSearchScreenState extends State<GoogleMapWithSearchScreen> {
   Future<void> _goToPlace(Map<String, dynamic> place) async {
     final double lat = place['geometry']['location']['lat'];
     final double lng = place['geometry']['location']['lng'];
+    final LatLng selectedLocation = LatLng(lat, lng);
+
     final GoogleMapController controller = await _controller.future;
     await controller.animateCamera(
       CameraUpdate.newCameraPosition(
-        CameraPosition(target: LatLng(lat, lng), zoom: 15),
+        CameraPosition(target: selectedLocation, zoom: 15),
       ),
     );
-    _setMarker(LatLng(lat, lng));
+
+    // Add marker for the selected location
+    _setMarker(selectedLocation);
 
     setState(() {
       _listVisible = false;
@@ -150,5 +178,33 @@ class _GoogleMapWithSearchScreenState extends State<GoogleMapWithSearchScreen> {
     setState(() {
       _itemSelected = false; // Reset item selection flag when text changes
     });
+  }
+
+  Future<void> _getCurrentLocation() async {
+    try {
+      LocationData locationData = await Location().getLocation();
+      setState(() {
+        _currentLocation =
+            LatLng(locationData.latitude!, locationData.longitude!);
+        if (_markers.isEmpty) {
+          _setMarker(_currentLocation!);
+          _moveToCurrentLocation();
+        }
+      });
+    } catch (e) {
+      print("Error getting current location: $e");
+    }
+  }
+
+  void _moveToCurrentLocation() async {
+    final GoogleMapController controller = await _controller.future;
+    controller.moveCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: _currentLocation!,
+          zoom: 15,
+        ),
+      ),
+    );
   }
 }

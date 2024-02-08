@@ -5,6 +5,7 @@ import 'package:ork_app/car_all_list.dart';
 import 'package:ork_app/models/showroom_model.dart';
 import 'package:ork_app/models/vechile_model.dart';
 import 'package:ork_app/pages/car_details_page.dart';
+import 'package:ork_app/pages/filter_car_info.dart';
 import 'package:ork_app/pages/location_page.dart';
 import 'package:ork_app/showroom_card.dart';
 
@@ -82,10 +83,16 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
         actions: [
-          const Icon(
-            Icons.filter,
-            color: Colors.white,
-          ),
+          GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const FilterCarInfo(),
+                  ),
+                );
+              },
+              child: Image.asset('image/filter.png')),
           const SizedBox(
             width: 20,
           ),
@@ -155,7 +162,7 @@ class _HomePageState extends State<HomePage> {
                                 fontWeight: FontWeight.bold),
                           ),
                           SizedBox(
-                            height: screenHeight * 0.033,
+                            height: screenHeight * 0.032,
                           ),
                           Text(
                             "Choose your Car & Book an Appointment with Dealer",

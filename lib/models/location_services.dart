@@ -81,7 +81,7 @@ class LocationService {
   final Dio _dio = Dio();
 
   Future<List<String>> getSuggestions(String text) async {
-    final String url =
+    const String url =
         'https://maps.googleapis.com/maps/api/place/autocomplete/json';
     final Map<String, dynamic> params = {
       'input': text,
@@ -102,7 +102,7 @@ class LocationService {
   }
 
   Future<String> getPlaceId(String input) async {
-    final String url =
+    const String url =
         'https://maps.googleapis.com/maps/api/place/findplacefromtext/json';
     final Map<String, dynamic> params = {
       'input': input,
@@ -122,7 +122,7 @@ class LocationService {
 
   Future<Map<String, dynamic>> getPlace(String input) async {
     final placeId = await getPlaceId(input);
-    final String url =
+    const String url =
         'https://maps.googleapis.com/maps/api/place/details/json';
     final Map<String, dynamic> params = {
       'place_id': placeId,

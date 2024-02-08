@@ -1,0 +1,47 @@
+import 'package:flutter/material.dart';
+
+class CustomContainers extends StatelessWidget {
+  final String text;
+  final int selectedText;
+
+  const CustomContainers(
+      {Key? key, required this.text, required this.selectedText})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 170,
+      height: 50,
+      margin: const EdgeInsets.only(right: 10),
+      decoration: const BoxDecoration(
+        borderRadius: BorderRadius.all(
+          Radius.circular(5),
+        ),
+        color: Color.fromARGB(98, 107, 106, 106),
+      ),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Row(
+            children: [
+              Text(
+                text,
+                style: const TextStyle(color: Colors.white),
+              ),
+              SizedBox(
+                width: 50,
+              ),
+              if (selectedText >= 1)
+                Text(
+                  selectedText.toString(),
+                  style: const TextStyle(color: Colors.white),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
