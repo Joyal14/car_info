@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
           return MaterialApp(
             home: isLoggedIn
                 // ? HomePage()
-                ? FilterCarInfo()
+                ? HomePage()
                 : SplashScreen(), // Navigate to HomePage if logged in, otherwise to LocationPage
           );
         }

@@ -34,9 +34,24 @@ class CustomContainers extends StatelessWidget {
                 width: 50,
               ),
               if (selectedText >= 1)
-                Text(
-                  selectedText.toString(),
-                  style: const TextStyle(color: Colors.white),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    width: 30,
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(
+                          5), // Optional: Add border radius for rounded corners
+                    ),
+                    padding: const EdgeInsets.all(
+                        8), // Optional: Add padding to the container
+                    child: Center(
+                      child: Text(
+                        selectedText.toString(),
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
                 ),
             ],
           ),
