@@ -1,18 +1,20 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:ork_app/models/location_services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:async';
 
-class GoogleMapWithSearchScreen extends StatefulWidget {
-  const GoogleMapWithSearchScreen({Key? key}) : super(key: key);
+class GoogleMapWithSearchScreen1 extends StatefulWidget {
+  const GoogleMapWithSearchScreen1({Key? key}) : super(key: key);
 
   @override
-  State<GoogleMapWithSearchScreen> createState() =>
+  State<GoogleMapWithSearchScreen1> createState() =>
       _GoogleMapWithSearchScreenState();
 }
 
-class _GoogleMapWithSearchScreenState extends State<GoogleMapWithSearchScreen> {
+class _GoogleMapWithSearchScreenState
+    extends State<GoogleMapWithSearchScreen1> {
   final Completer<GoogleMapController> _controller =
       Completer<GoogleMapController>();
   final TextEditingController _searchController = TextEditingController();
@@ -24,7 +26,7 @@ class _GoogleMapWithSearchScreenState extends State<GoogleMapWithSearchScreen> {
   late StreamSubscription<LocationData> _locationSubscription;
 
   static const CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(37.42796133580664, -122.085749655962),
+    target: LatLng(0, 0),
     zoom: 14.4746,
   );
 
@@ -46,6 +48,7 @@ class _GoogleMapWithSearchScreenState extends State<GoogleMapWithSearchScreen> {
         }
       });
     });
+    _retrieveSavedLocation();
   }
 
   @override
@@ -123,6 +126,7 @@ class _GoogleMapWithSearchScreenState extends State<GoogleMapWithSearchScreen> {
                       _goToPlace(place);
                       _searchController.text =
                           _suggestions[index]; // Update the TextField text
+                      _saveSelectedLocation(place); // Save selected location
                       setState(() {
                         _itemSelected = true;
                         _listVisible = false; // Hide the list
@@ -206,5 +210,32 @@ class _GoogleMapWithSearchScreenState extends State<GoogleMapWithSearchScreen> {
         ),
       ),
     );
+  }
+
+  void _saveSelectedLocation(Map<String, dynamic> place) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final double lat = place['geometry']['location']['lat'];
+    final double lng = place['geometry']['location']['lng'];
+    prefs.setDouble('selectedLat', lat);
+    prefs.setDouble('selectedLng', lng);
+  }
+
+  Future<void> _retrieveSavedLocation() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final double? lat = prefs.getDouble('selectedLat');
+    final double? lng = prefs.getDouble('selectedLng');
+    if (lat != null && lng != null) {
+      _goToPlace({
+        'geometry': {
+          'location': {'lat': lat, 'lng': lng}
+        }
+      });
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _retrieveSavedLocation(); // Retrieve and navigate to saved location
   }
 }

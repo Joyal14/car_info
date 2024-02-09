@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ork_app/SplashScreen/splash_Screen.dart';
-import 'package:ork_app/pages/filter_car_info.dart';
+import 'package:ork_app/login_page.dart';
 import 'package:ork_app/pages/home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
       future: checkLoggedIn(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator(); // Show loading indicator while checking login state
+          return const CircularProgressIndicator(); // Show loading indicator while checking login state
         } else if (snapshot.hasError) {
           return MaterialApp(
             home: Scaffold(
@@ -27,10 +27,18 @@ class MyApp extends StatelessWidget {
         } else {
           final isLoggedIn = snapshot.data ?? false;
           return MaterialApp(
-            home: isLoggedIn
-                // ? HomePage()
-                ? HomePage()
-                : SplashScreen(), // Navigate to HomePage if logged in, otherwise to LocationPage
+            debugShowCheckedModeBanner: false,
+            initialRoute: isLoggedIn
+                ? '/home'
+                : '/login', // Set initial route based on login state
+            routes: {
+              '/login': (context) => LoginPage(
+                  handleLogout:
+                      _handleLogout), // Pass _handleLogout function to LoginPage
+              '/home': (context) => HomePage(),
+              // Add more routes if needed
+              '/splash': (context) => SplashScreen(),
+            },
           );
         }
       },
@@ -40,5 +48,13 @@ class MyApp extends StatelessWidget {
   Future<bool> checkLoggedIn() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getBool('isLoggedIn') ?? false;
+  }
+
+  // Define the logout function
+  void _handleLogout(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove('isLoggedIn'); // Clear isLoggedIn flag
+    Navigator.pushReplacementNamed(
+        context, '/splash'); // Navigate to login page
   }
 }

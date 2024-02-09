@@ -8,6 +8,7 @@ import 'package:ork_app/pages/car_details_page.dart';
 import 'package:ork_app/pages/filter_car_info.dart';
 import 'package:ork_app/pages/location_page.dart';
 import 'package:ork_app/showroom_card.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -133,16 +134,20 @@ class _HomePageState extends State<HomePage> {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 20.0, vertical: 10),
+                        horizontal: 20.0,
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            "ORK",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 25,
-                                fontWeight: FontWeight.bold),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 2),
+                            child: Text(
+                              "ORK",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.bold),
+                            ),
                           ),
                           const Divider(
                             color: Colors.blue,
@@ -162,7 +167,7 @@ class _HomePageState extends State<HomePage> {
                                 fontWeight: FontWeight.bold),
                           ),
                           SizedBox(
-                            height: screenHeight * 0.032,
+                            height: screenHeight * 0.036,
                           ),
                           Text(
                             "Choose your Car & Book an Appointment with Dealer",
@@ -324,7 +329,22 @@ class _HomePageState extends State<HomePage> {
             label: 'Profile',
           ),
         ],
+        onTap: (int index) {
+          if (index == 3) {
+            // Profile tab tapped
+            _handleLogout(context);
+          } else {
+            // Other tabs tapped
+            // You can add navigation logic for other tabs if needed
+          }
+        },
       ),
     );
   }
+}
+
+void _handleLogout(BuildContext context) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  prefs.remove('isLoggedIn'); // Clear isLoggedIn flag
+  Navigator.pushReplacementNamed(context, '/splash'); // Navigate to login page
 }

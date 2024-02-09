@@ -20,7 +20,10 @@ class _SplashScreenState extends State<SplashScreen> {
       () {
         // Navigate to the Onboarding screen after the splash screen duration
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => LoginPage()),
+          MaterialPageRoute(
+              builder: (context) => LoginPage(
+                    handleLogout: (BuildContext context) {},
+                  )),
         );
       },
     );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ork_app/pages/google_map.dart';
+import 'package:ork_app/pages/google_map1.dart';
 
 class LocationPage extends StatelessWidget {
   const LocationPage({super.key});
@@ -72,7 +73,7 @@ class LocationPage extends StatelessWidget {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) =>
-                                      GoogleMapWithSearchScreen(),
+                                      const GoogleMapWithSearchScreen(),
                                 ),
                               );
                             },
@@ -96,10 +97,21 @@ class LocationPage extends StatelessWidget {
                       const SizedBox(
                         height: 30,
                       ),
-                      const Center(
-                        child: Text(
-                          "Set Manually",
-                          style: TextStyle(color: Colors.blue),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const GoogleMapWithSearchScreen1(),
+                            ),
+                          );
+                        },
+                        child: const Center(
+                          child: Text(
+                            "Set Manually",
+                            style: TextStyle(color: Colors.blue),
+                          ),
                         ),
                       )
                     ],

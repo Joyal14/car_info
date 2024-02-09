@@ -56,7 +56,7 @@ class _CarCardState extends State<CarCard> {
                   '${widget.data.yearData?.year ?? ''} | ${widget.data.mileage ?? ''} | ${widget.data.location ?? ''}',
                   style: const TextStyle(fontSize: 12, color: Colors.white),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 2),
                 Text(
                   '₹ ${widget.data.price ?? 'Price'}',
                   style: const TextStyle(fontSize: 12, color: Colors.blue),

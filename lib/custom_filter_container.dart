@@ -30,7 +30,7 @@ class CustomContainers extends StatelessWidget {
                 text,
                 style: const TextStyle(color: Colors.white),
               ),
-              SizedBox(
+              const SizedBox(
                 width: 50,
               ),
               if (selectedText >= 1)
