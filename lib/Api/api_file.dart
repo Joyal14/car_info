@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:ork_app/models/brand_name_model.dart';
 import 'package:ork_app/models/car_color_model.dart';
 import 'package:ork_app/models/showroom_model.dart';
 import 'package:ork_app/models/vechile_model.dart';
@@ -67,7 +68,7 @@ class ApiHelper {
     }
   }
 
-  static Future<List<CarColorModel>> fetchCarColor() async {
+  static Future<List<CarColor>> fetchCarColor() async {
     Dio dio = createDio();
 
     try {
@@ -82,13 +83,48 @@ class ApiHelper {
       );
 
       // Ensure that the response data is a Map<String, dynamic>
-      if (response.data is Map<String, dynamic>) {
+      if (response.statusCode == 200) {
         // If the response is correct, parse the data
-        return [_parseCarColorResponse(response.data)];
+        final Map<String, dynamic> responseData = response.data;
+        final carColorModel = CarColorModel.fromJson(responseData);
+        final List<CarColor>? colors = carColorModel.data?.docs;
+        return colors ?? [];
       } else {
         // If the response is not as expected, throw an error
-        throw Exception(
-            'Unexpected response type: ${response.data.runtimeType}');
+        throw Exception('Failed to fetch car colors');
+      }
+    } catch (e) {
+      print('Error: $e');
+      throw e;
+    } finally {
+      dio.close();
+    }
+  }
+
+  static Future<List<Brandname>> fetchBrandName() async {
+    Dio dio = createDio();
+
+    try {
+      String accessToken = await _getAccessToken();
+      dio.options.headers['Authorization'] = accessToken;
+
+      Response response = await dio.get(
+        '$baseUrl/getcarbrand',
+        queryParameters: {
+          'page': '1',
+        },
+      );
+
+      // Ensure that the response data is a Map<String, dynamic>
+      if (response.statusCode == 200) {
+        // If the response is correct, parse the data
+        final Map<String, dynamic> responseData = response.data;
+        final brandNameModel = BrandName.fromJson(responseData);
+        final List<Brandname>? brands = brandNameModel.data?.docs;
+        return brands ?? [];
+      } else {
+        // If the response is not as expected, throw an error
+        throw Exception('Failed to fetch car colors');
       }
     } catch (e) {
       print('Error: $e');
@@ -115,10 +151,5 @@ class ApiHelper {
             ?.map((json) => ShowRoomModel.fromJson(json))
             .toList() ??
         [];
-  }
-
-  static CarColorModel _parseCarColorResponse(
-      Map<String, dynamic> responseData) {
-    return CarColorModel.fromJson(responseData);
   }
 }

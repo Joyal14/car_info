@@ -1,234 +1,7 @@
-// import 'package:flutter/material.dart';
-// import 'package:ork_app/Api/api_file.dart';
-// import 'package:ork_app/custom_filter_container.dart';
-// import 'package:ork_app/models/car_color_model.dart';
-
-// class FilterCarInfo extends StatefulWidget {
-//   const FilterCarInfo({Key? key}) : super(key: key);
-
-//   @override
-//   State<FilterCarInfo> createState() => _FilterCarInfoState();
-// }
-
-// class _FilterCarInfoState extends State<FilterCarInfo> {
-//   List<String> yearDataList = [
-//     '0 to 1 years',
-//     '1 to 3 years',
-//     '3 to 5 years',
-//     '5 to 7 years',
-//     '7+ years',
-//   ];
-
-//   List<String> selectedYears = [];
-//   late List<CarColorModel> carColor = [];
-//   bool showSecondContainer = false;
-
-//   @override
-//   void setState(VoidCallback fn) {
-//     // TODO: implement setState
-//     super.setState(fn);
-//     _fetchCarColor();
-//   }
-
-//   Future<void> _fetchCarColor() async {
-//     try {
-//       List<CarColorModel> profiles = await ApiHelper.fetchCarColor();
-//       setState(() {
-//         carColor = profiles;
-//       });
-//       print(carColor);
-//     } catch (e) {
-//       print('Error fetching car profiles: $e');
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         backgroundColor: Colors.black,
-//         title: const Text(
-//           'Filter By',
-//           style: TextStyle(color: Colors.white),
-//         ),
-//         iconTheme: const IconThemeData(color: Colors.white),
-//       ),
-//       backgroundColor: Colors.black,
-//       body: Column(
-//         children: [
-//           Expanded(
-//             child: SizedBox(
-//               width: double.infinity,
-//               child: Row(
-//                 children: [
-//                   GestureDetector(
-//                     onTap: () {
-//                       setState(() {
-//                         // Toggle visibility of the second container
-//                         showSecondContainer = !showSecondContainer;
-//                       });
-//                     },
-//                     child: Container(
-//                       height: double.infinity,
-//                       width: 170,
-//                       color: Colors.black,
-//                       child: Column(
-//                         crossAxisAlignment: CrossAxisAlignment.start,
-//                         children: [
-//                           const SizedBox(
-//                             height: 10,
-//                           ),
-//                           // CustomContainers(
-//                           //   text: "Brand",
-//                           //   selectedText: carColor,
-//                           // ),
-//                           // const SizedBox(
-//                           //   height: 5,
-//                           // ),
-//                           // CustomContainers(
-//                           //   text: "Model",
-//                           //   selectedText: selectedBrands.length,
-//                           // ),
-//                           // const SizedBox(
-//                           //   height: 5,
-//                           // ),
-//                           // CustomContainers(
-//                           //   text: "Price",
-//                           //   selectedText: selectedBrands.length,
-//                           // ),
-//                           // const SizedBox(
-//                           //   height: 5,
-//                           // ),
-//                           CustomContainers(
-//                             text: "Year",
-//                             selectedText: selectedYears.length,
-//                           ),
-//                           // const SizedBox(
-//                           //   height: 5,
-//                           // ),
-//                         ],
-//                       ),
-//                     ),
-//                   ),
-//                   const SizedBox(
-//                     width: 5,
-//                   ),
-//                   // Show the second container if showSecondContainer is true
-//                   if (showSecondContainer)
-//                     Container(
-//                       height: double.infinity,
-//                       width: 230,
-//                       color: Colors.black,
-//                       child: ListView.builder(
-//                         itemCount: yearDataList.length,
-//                         itemBuilder: (context, index) {
-//                           return Theme(
-//                             data: ThemeData(
-//                               checkboxTheme: CheckboxThemeData(
-//                                 fillColor:
-//                                     MaterialStateProperty.resolveWith<Color?>(
-//                                         (Set<MaterialState> states) {
-//                                   if (states.contains(MaterialState.disabled)) {
-//                                     return null;
-//                                   }
-//                                   if (states.contains(MaterialState.selected)) {
-//                                     return Colors
-//                                         .blue; // Set the fill color to blue for selected state
-//                                   }
-//                                   return null;
-//                                 }),
-//                                 checkColor: MaterialStateProperty.all(Colors
-//                                     .white), // Set the check color to white
-//                                 overlayColor: MaterialStateProperty.all(
-//                                     Colors.blue.withOpacity(
-//                                         0.2)), // Set the overlay color to blue with opacity
-//                                 shape: RoundedRectangleBorder(
-//                                     borderRadius: BorderRadius.circular(4),
-//                                     side: const BorderSide(
-//                                         color: Colors
-//                                             .blue)), // Set the border color to blue
-//                               ),
-//                             ),
-//                             child: CheckboxListTile(
-//                               onChanged: (value) {
-//                                 setState(() {
-//                                   if (value!) {
-//                                     selectedYears.add(yearDataList[index]);
-//                                   } else {
-//                                     selectedYears.remove(yearDataList[index]);
-//                                   }
-//                                 });
-//                               },
-//                               value:
-//                                   selectedYears.contains(yearDataList[index]),
-//                               title: Text(
-//                                 yearDataList[index],
-//                                 style: const TextStyle(color: Colors.white),
-//                               ),
-//                               controlAffinity: ListTileControlAffinity.leading,
-//                             ),
-//                           );
-//                         },
-//                       ),
-//                     ),
-//                 ],
-//               ),
-//             ),
-//           ),
-//           // Buttons at the bottom of the screen
-//           Row(
-//             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//             children: [
-//               GestureDetector(
-//                 onTap: () {},
-//                 child: Container(
-//                   width: 150,
-//                   height: 60,
-//                   decoration: BoxDecoration(
-//                     color: Colors.black,
-//                     borderRadius: BorderRadius.circular(10),
-//                     border: Border.all(
-//                       color: const Color.fromARGB(224, 34, 96, 202),
-//                     ),
-//                   ),
-//                   child: const Center(
-//                     child: Text(
-//                       "Clear All",
-//                       style: TextStyle(color: Colors.blue),
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//               GestureDetector(
-//                 onTap: () {},
-//                 child: Container(
-//                   width: 150,
-//                   height: 60,
-//                   decoration: BoxDecoration(
-//                     color: Colors.black,
-//                     borderRadius: BorderRadius.circular(10),
-//                     border: Border.all(
-//                       color: const Color.fromARGB(224, 34, 96, 202),
-//                     ),
-//                   ),
-//                   child: const Center(
-//                     child: Text(
-//                       "Apply",
-//                       style: TextStyle(color: Colors.blue),
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
 import 'package:flutter/material.dart';
 import 'package:ork_app/Api/api_file.dart';
+import 'package:ork_app/filter_model.dart';
+import 'package:ork_app/models/brand_name_model.dart';
 import 'package:ork_app/models/car_color_model.dart';
 
 class FilterCarInfo extends StatefulWidget {
@@ -239,184 +12,327 @@ class FilterCarInfo extends StatefulWidget {
 }
 
 class _FilterCarInfoState extends State<FilterCarInfo> {
-  late List<CarColorModel> carColor = [];
+  List<FilterModel> yearDataList = [
+    FilterModel(title: "0 to 1 Year"),
+    FilterModel(title: "1 to 3 Year"),
+    FilterModel(title: "3 to 5 Year"),
+    FilterModel(title: "5 to 7 Year"),
+    FilterModel(title: "7+ Year"),
+  ];
+
+  List<FilterModel> kmDrivenDataList = [
+    FilterModel(title: "Below 25000km"),
+    FilterModel(title: "25000 to 50000Km"),
+    FilterModel(title: "50000 to 75000Km"),
+    FilterModel(title: "75000 to 100000Km"),
+    FilterModel(title: "Above 100000Km+"),
+  ];
+
+  List<FilterModel> selectedOptions = [];
+  Map<String, int> categoryCounts = {
+    'Year': 0,
+    'Km Driven': 0,
+    'color': 0,
+    'brandname': 0,
+  };
+  String selectedCategory = '';
+  late List<CarColor> carColor = [];
+
+  late List<Brandname> brandName = [];
 
   @override
   void initState() {
     super.initState();
     _fetchCarColor();
+    _fetchBrandName();
   }
 
-  // Function to fetch car colors from the API
   Future<void> _fetchCarColor() async {
     try {
-      List<CarColorModel> profiles = await ApiHelper.fetchCarColor();
+      // Change the type of profiles to List<CarColor>
+      List<CarColor> profiles = await ApiHelper.fetchCarColor();
       setState(() {
+        // Assign profiles to carColor
         carColor = profiles;
+        // Initialize selectedColorStates based on carColor length
+        selectedColorStates = List.generate(carColor.length, (_) => false);
       });
-      print(carColor);
     } catch (e) {
       print('Error fetching car profiles: $e');
     }
   }
 
-  // Function to handle clearing all selected filters
-  void _clearAllFilters() {
-    setState(() {
-      // Clear all selected filters
-    });
-  }
-
-  // Function to handle applying selected filters
-  void _applyFilters() {
-    setState(() {
-      // Apply selected filters
-    });
+  Future<void> _fetchBrandName() async {
+    try {
+      // Change the type of profiles to List<CarColor>
+      List<Brandname> profiles = await ApiHelper.fetchBrandName();
+      setState(() {
+        // Assign profiles to carColor
+        brandName = profiles;
+        // Initialize selectedColorStates based on carColor length
+        selectedbrandStates = List.generate(brandName.length, (_) => false);
+      });
+    } catch (e) {
+      print('Error fetching car profiles: $e');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: const Text(
-          'Filter By',
-          style: TextStyle(color: Colors.white),
+        backgroundColor: const Color.fromARGB(255, 60, 59, 59),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
         ),
-        iconTheme: const IconThemeData(color: Colors.white),
+        title: Text('Filter', style: TextStyle(color: Colors.white)),
       ),
       backgroundColor: Colors.black,
-      body: Column(
-        children: [
-          Expanded(
-            child: SizedBox(
-              width: double.infinity,
-              child: Row(
+      body: SingleChildScrollView(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // First column for filter options
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  GestureDetector(
-                    onTap: () {
-                      // Handle tap
-                    },
-                    child: Container(
-                      height: double.infinity,
-                      width: 170,
-                      color: Colors.black,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 10),
-                          CustomContainers(
-                            text: "Color",
-                            carColors: carColor,
-                          ),
-                        ],
-                      ),
-                    ),
+                  SizedBox(
+                    height: 50, // Fixed height for the buttons
+                    child: buildFilterButton('Year'),
+                  ),
+                  SizedBox(
+                    height: 50, // Fixed height for the buttons
+                    child: buildFilterButton('Km Driven'),
+                  ),
+                  SizedBox(
+                    height: 50, // Fixed height for the buttons
+                    child: buildFilterButton('color'),
+                  ),
+                  SizedBox(
+                    height: 50, // Fixed height for the buttons
+                    child: buildFilterButton('brandname'),
                   ),
                 ],
               ),
             ),
-          ),
-          // Buttons at the bottom of the screen
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              GestureDetector(
-                onTap: _clearAllFilters, // Call _clearAllFilters function
-                child: Container(
-                  width: 150,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: const Color.fromARGB(224, 34, 96, 202),
-                    ),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      "Clear All",
-                      style: TextStyle(color: Colors.blue),
-                    ),
-                  ),
+            // Second column for selected filter options
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: buildCheckboxList(),
                 ),
               ),
-              GestureDetector(
-                onTap: _applyFilters, // Call _applyFilters function
-                child: Container(
-                  width: 150,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: const Color.fromARGB(224, 34, 96, 202),
-                    ),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      "Apply",
-                      style: TextStyle(color: Colors.blue),
-                    ),
-                  ),
-                ),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        color: const Color.fromARGB(255, 60, 59, 59),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  clearAllSelections();
+                });
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+              child: const Text(
+                'Clear All',
+                style: TextStyle(color: Colors.white),
               ),
-            ],
-          ),
-        ],
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Navigate to FilterOptionsPage and pass the selected options
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(
+                //     builder: (context) => FilterOptionsPage(selectedOptions: selectedOptions),
+                //   ),
+                // );
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+              child: Text(
+                'Apply',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
-}
 
-class CustomContainers extends StatelessWidget {
-  final String text;
-  final List<CarColorModel> carColors;
-
-  const CustomContainers({
-    Key? key,
-    required this.text,
-    required this.carColors,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          text,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
+  Widget buildFilterButton(String category) {
+    int count = categoryCounts[category] ?? 0;
+    return Padding(
+      padding: EdgeInsets.symmetric(
+          vertical: 3.0, horizontal: 6.0), // Adjust padding as needed
+      child: Container(
+        width: 200, // Set a fixed width for consistent button lengths
+        child: TextButton(
+          onPressed: () {
+            setState(() {
+              if (selectedCategory == category) {
+                selectedCategory = '';
+              } else {
+                selectedOptions = category == 'Year'
+                    ? yearDataList
+                    : category == 'Km Driven'
+                        ? kmDrivenDataList
+                        : [];
+                selectedCategory = category;
+              }
+              updateCounts();
+            });
+          },
+          style: TextButton.styleFrom(
+            backgroundColor:
+                Color.fromARGB(255, 48, 48, 48), // Set gray background color
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                category,
+                style:
+                    TextStyle(color: Colors.white), // Set text color to black
+              ),
+              if (count > 0)
+                Container(
+                  width: 24, // Set the width of the container
+                  height: 24, // Set the height of the container
+                  alignment: Alignment.center, // Center the count
+                  decoration: BoxDecoration(
+                    color: Colors
+                        .blue, // Set the background color of the container
+                    borderRadius: BorderRadius.circular(
+                        4), // Apply border radius for a rounded appearance
+                  ),
+                  child: Text(
+                    '${categoryCounts[category]}',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+            ],
           ),
         ),
-        const SizedBox(height: 5),
-        if (text == '')
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: carColors.map((carColor) {
-              return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: carColor.data?.docs
-                          ?.map((doc) => CheckboxListTile(
-                                onChanged: (value) {
-                                  // Handle checkbox onChanged
-                                },
-                                value: false, // Set initial value
-                                title: Text(
-                                  doc.color ?? '', // Display color name
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                                controlAffinity:
-                                    ListTileControlAffinity.leading,
-                              ))
-                          .toList() ??
-                      []);
-            }).toList(),
-          ),
-      ],
+      ),
     );
+  }
+
+  List<bool> selectedColorStates = [];
+  List<bool> selectedbrandStates = [];
+
+  List<Widget> buildCheckboxList() {
+    List<Widget> checkboxes = [];
+    checkboxes.addAll(selectedOptions.map((option) {
+      return CheckboxListTile(
+        title: Text(
+          option.title,
+          style: TextStyle(color: Colors.white),
+        ),
+        value: option.isSelected,
+        onChanged: (value) {
+          setState(() {
+            option.isSelected = value!;
+            updateCounts();
+          });
+        },
+        controlAffinity: ListTileControlAffinity.leading,
+        activeColor: Colors.blue,
+        checkColor: Colors.white,
+      );
+    }).toList());
+
+    // Check if the "Color" button is selected
+    if (selectedCategory == 'color') {
+      // Add color checkboxes
+      checkboxes.addAll(carColor.map((color) {
+        int index = carColor.indexOf(color);
+        return CheckboxListTile(
+          title: Text(
+            color.color ?? '',
+            style: const TextStyle(color: Colors.white),
+          ),
+          value: selectedColorStates.length > index
+              ? selectedColorStates[index]
+              : false,
+          onChanged: (value) {
+            setState(() {
+              selectedColorStates[index] = value!;
+              updateCounts(); // Update counts when checkbox state changes
+            });
+          },
+          controlAffinity: ListTileControlAffinity.leading,
+          activeColor: Colors.blue,
+          checkColor: Colors.white,
+        );
+      }).toList());
+    }
+
+    if (selectedCategory == 'brandname') {
+      // Add brand name checkboxes
+      checkboxes.addAll(brandName.map((brandname) {
+        int index = brandName.indexOf(brandname);
+        return CheckboxListTile(
+          title: Text(
+            brandname.brandName ??
+                '', // Access the color property of the Doc object
+            style: const TextStyle(color: Colors.white),
+          ),
+          value: selectedbrandStates.length > index
+              ? selectedbrandStates[index]
+              : false,
+          onChanged: (value) {
+            setState(() {
+              selectedbrandStates[index] = value!;
+              updateCounts(); // Update counts when checkbox state changes
+            });
+          },
+          controlAffinity: ListTileControlAffinity.leading,
+          activeColor: Colors.blue,
+          checkColor: Colors.white,
+        );
+      }).toList());
+    }
+
+    return checkboxes;
+  }
+
+  void updateCounts() {
+    categoryCounts['Year'] =
+        yearDataList.where((option) => option.isSelected).length;
+    categoryCounts['Km Driven'] =
+        kmDrivenDataList.where((option) => option.isSelected).length;
+    categoryCounts['color'] =
+        selectedColorStates.where((isSelected) => isSelected).length;
+    categoryCounts['brandname'] =
+        selectedbrandStates.where((isSelected) => isSelected).length;
+  }
+
+  void clearAllSelections() {
+    setState(() {
+      for (var option in yearDataList) {
+        option.isSelected = false;
+      }
+      for (var option in kmDrivenDataList) {
+        option.isSelected = false;
+      }
+
+      selectedColorStates = List.generate(carColor.length, (_) => false);
+      selectedbrandStates = List.generate(brandName.length, (_) => false);
+
+      updateCounts();
+    });
   }
 }

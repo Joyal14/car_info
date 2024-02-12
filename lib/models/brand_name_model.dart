@@ -1,26 +1,25 @@
 // To parse this JSON data, do
 //
-//     final carColor = carColorFromJson(jsonString);
+//     final brandName = brandNameFromJson(jsonString);
 
 import 'dart:convert';
 
-CarColorModel carColorFromJson(String str) =>
-    CarColorModel.fromJson(json.decode(str));
+BrandName brandNameFromJson(String str) => BrandName.fromJson(json.decode(str));
 
-String carColorToJson(CarColorModel data) => json.encode(data.toJson());
+String brandNameToJson(BrandName data) => json.encode(data.toJson());
 
-class CarColorModel {
+class BrandName {
   Status? status;
-  CarColors? data;
+  Data? data;
 
-  CarColorModel({
+  BrandName({
     this.status,
     this.data,
   });
 
-  factory CarColorModel.fromJson(Map<String, dynamic> json) => CarColorModel(
+  factory BrandName.fromJson(Map<String, dynamic> json) => BrandName(
         status: json["status"] == null ? null : Status.fromJson(json["status"]),
-        data: json["data"] == null ? null : CarColors.fromJson(json["data"]),
+        data: json["data"] == null ? null : Data.fromJson(json["data"]),
       );
 
   Map<String, dynamic> toJson() => {
@@ -29,8 +28,8 @@ class CarColorModel {
       };
 }
 
-class CarColors {
-  List<CarColor>? docs;
+class Data {
+  List<Brandname>? docs;
   int? totalDocs;
   int? limit;
   int? page;
@@ -41,7 +40,7 @@ class CarColors {
   dynamic prevPage;
   int? nextPage;
 
-  CarColors({
+  Data({
     this.docs,
     this.totalDocs,
     this.limit,
@@ -54,11 +53,11 @@ class CarColors {
     this.nextPage,
   });
 
-  factory CarColors.fromJson(Map<String, dynamic> json) => CarColors(
+  factory Data.fromJson(Map<String, dynamic> json) => Data(
         docs: json["docs"] == null
             ? []
-            : List<CarColor>.from(
-                json["docs"]!.map((x) => CarColor.fromJson(x))),
+            : List<Brandname>.from(
+                json["docs"]!.map((x) => Brandname.fromJson(x))),
         totalDocs: json["totalDocs"],
         limit: json["limit"],
         page: json["page"],
@@ -86,27 +85,27 @@ class CarColors {
       };
 }
 
-class CarColor {
+class Brandname {
   String? id;
-  String? color;
-  int? status;
+  String? brandName;
+  bool? topBrand;
   DateTime? createdAt;
   DateTime? updatedAt;
   int? v;
 
-  CarColor({
+  Brandname({
     this.id,
-    this.color,
-    this.status,
+    this.brandName,
+    this.topBrand,
     this.createdAt,
     this.updatedAt,
     this.v,
   });
 
-  factory CarColor.fromJson(Map<String, dynamic> json) => CarColor(
+  factory Brandname.fromJson(Map<String, dynamic> json) => Brandname(
         id: json["_id"],
-        color: json["color"],
-        status: json["status"],
+        brandName: json["brandName"],
+        topBrand: json["topBrand"],
         createdAt: json["createdAt"] == null
             ? null
             : DateTime.parse(json["createdAt"]),
@@ -118,8 +117,8 @@ class CarColor {
 
   Map<String, dynamic> toJson() => {
         "_id": id,
-        "color": color,
-        "status": status,
+        "brandName": brandName,
+        "topBrand": topBrand,
         "createdAt": createdAt?.toIso8601String(),
         "updatedAt": updatedAt?.toIso8601String(),
         "__v": v,
