@@ -1,8 +1,10 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:ork_app/Api/api_file.dart';
-import 'package:ork_app/filter_model.dart';
+import 'package:ork_app/models/filter_model.dart';
 import 'package:ork_app/models/brand_name_model.dart';
 import 'package:ork_app/models/car_color_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FilterCarInfo extends StatefulWidget {
   const FilterCarInfo({Key? key}) : super(key: key);
@@ -57,6 +59,74 @@ class _FilterCarInfoState extends State<FilterCarInfo> {
     _fetchBrandName();
   }
 
+  static Future<String> _getAccessToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString("access_token") ?? "";
+  }
+
+// Send filter request to server
+  void postFilterRequest(String token) async {
+    // Print the token before sending the request
+    print('Access Token: $token');
+
+    // Create Dio instance
+    Dio dio = Dio();
+
+    // Define the API endpoint URL
+    String url = 'https://dev-api.orkindia.com/api/v1/users/filter-search';
+
+    // Construct the request body
+    Map<String, dynamic> requestBody = {
+      'page': '1',
+      'type': 'showroom',
+      'year': yearDataList
+          .where((option) => option.isSelected)
+          .map((option) => option.title)
+          .toList(),
+      'kmDriven': kmDrivenDataList
+          .where((option) => option.isSelected)
+          .map((option) => option.title)
+          .toList(),
+      'colors': carColor
+          .asMap()
+          .entries
+          .where((entry) => selectedColorStates[entry.key])
+          .map((entry) => entry.value.color)
+          .toList(),
+      'brands': brandName
+          .asMap()
+          .entries
+          .where((entry) => selectedbrandStates[entry.key])
+          .map((entry) => entry.value.brandName)
+          .toList(),
+    };
+
+    try {
+      dio.options.headers['Authorization'] = 'Bearer $token';
+      print('Access Token: $token');
+      // Send POST request with token in header
+      Response response = await dio.post(
+        url,
+        data: requestBody,
+      );
+
+      // Handle response
+      print('Response status: ${response.statusCode}');
+      print('Response data: ${response.data}');
+    } on DioError catch (e) {
+      // Handle Dio errors
+      if (e.response?.statusCode == 401) {
+        print(
+            'Unauthorized: You need to authenticate before accessing this resource.');
+      } else {
+        print('Error: $e');
+      }
+    } catch (e) {
+      // Handle other errors
+      print('Error: $e');
+    }
+  }
+
   Future<void> _fetchCarColor() async {
     try {
       List<CarColor> profiles = await ApiHelper.fetchCarColor();
@@ -80,6 +150,8 @@ class _FilterCarInfoState extends State<FilterCarInfo> {
       print('Error fetching brand names: $e');
     }
   }
+
+  // Get access token from SharedPreferences
 
   @override
   Widget build(BuildContext context) {
@@ -139,8 +211,9 @@ class _FilterCarInfoState extends State<FilterCarInfo> {
                   style: TextStyle(color: Colors.white)),
             ),
             ElevatedButton(
-              onPressed: () {
-                // Apply filter logic here
+              onPressed: () async {
+                String accessToken = await _getAccessToken();
+                postFilterRequest(accessToken);
               },
               style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
               child: const Text('Apply', style: TextStyle(color: Colors.white)),

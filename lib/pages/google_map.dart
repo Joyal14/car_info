@@ -15,10 +15,8 @@ class GoogleMapWithSearchScreen extends StatefulWidget {
 class _GoogleMapWithSearchScreenState extends State<GoogleMapWithSearchScreen> {
   final Completer<GoogleMapController> _controller =
       Completer<GoogleMapController>();
-  final TextEditingController _searchController = TextEditingController();
-  List<String> _suggestions = [];
-  bool _listVisible = false; // Flag to track list visibility
-  bool _itemSelected = false;
+  final List<String> _suggestions = [];
+  bool _listVisible = false;
   Set<Marker> _markers = {}; // Updated to be mutable
   LatLng? _currentLocation; // Updated to be nullable
   late StreamSubscription<LocationData> _locationSubscription;
@@ -31,7 +29,6 @@ class _GoogleMapWithSearchScreenState extends State<GoogleMapWithSearchScreen> {
   @override
   void initState() {
     super.initState();
-    _searchController.addListener(_onSearchChanged);
     _getCurrentLocation();
 
     // Start listening for location updates
@@ -50,21 +47,8 @@ class _GoogleMapWithSearchScreenState extends State<GoogleMapWithSearchScreen> {
 
   @override
   void dispose() {
-    _searchController.dispose();
     _locationSubscription.cancel(); // Cancel the location subscription
     super.dispose();
-  }
-
-  void _onSearchChanged() async {
-    // Fetch suggestions based on the current search query
-    List<String> newSuggestions =
-        await LocationService().getSuggestions(_searchController.text);
-    setState(() {
-      _suggestions = newSuggestions;
-      _listVisible = !_itemSelected &&
-          _suggestions
-              .isNotEmpty; // Show the list when new suggestions are available
-    });
   }
 
   void _setMarker(LatLng point) {
@@ -88,27 +72,6 @@ class _GoogleMapWithSearchScreenState extends State<GoogleMapWithSearchScreen> {
       ),
       body: Column(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _searchController,
-                  textCapitalization: TextCapitalization.words,
-                  decoration: const InputDecoration(hintText: 'Search by City'),
-                  onChanged:
-                      _onTextChanged, // Call _onTextChanged when text changes
-                ),
-              ),
-              IconButton(
-                onPressed: () async {
-                  var place =
-                      await LocationService().getPlace(_searchController.text);
-                  _goToPlace(place);
-                },
-                icon: const Icon(Icons.search),
-              )
-            ],
-          ),
           Visibility(
             visible: _listVisible,
             child: Expanded(
@@ -121,10 +84,7 @@ class _GoogleMapWithSearchScreenState extends State<GoogleMapWithSearchScreen> {
                       var place =
                           await LocationService().getPlace(_suggestions[index]);
                       _goToPlace(place);
-                      _searchController.text =
-                          _suggestions[index]; // Update the TextField text
                       setState(() {
-                        _itemSelected = true;
                         _listVisible = false; // Hide the list
                       });
                     },
@@ -169,14 +129,7 @@ class _GoogleMapWithSearchScreenState extends State<GoogleMapWithSearchScreen> {
     _setMarker(selectedLocation);
 
     setState(() {
-      _listVisible = false;
-      _itemSelected = true; // Hide the list after a suggestion is selected
-    });
-  }
-
-  void _onTextChanged(String newText) {
-    setState(() {
-      _itemSelected = false; // Reset item selection flag when text changes
+      _listVisible = false; // Hide the list after a suggestion is selected
     });
   }
 

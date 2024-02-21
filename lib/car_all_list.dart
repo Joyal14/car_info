@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ork_app/Api/api_file.dart';
-import 'package:ork_app/car_card.dart';
+import 'card/car_card.dart';
 import 'package:ork_app/models/vechile_model.dart';
 import 'package:ork_app/pages/car_details_page.dart';
 
